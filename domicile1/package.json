@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "marked": "^17.0.1"
+  },
+  "scripts": {
+    "barrel": "node generate-barrel.js",
+    "build": "node scripts/build.js",
+    "type": "module"
+  }
+}
+

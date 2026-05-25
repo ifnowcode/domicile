@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DOMicile Test Page</title>
+  <script src="./js/domicile.js"></script>
+  <script src="./js/components.js"></script>
+</head>
+<body>
+  <script>
+    // Build a DOMicile page in the browser
+    const page = [
+      new Box({ css: { padding: "20px", background: "#eee" } },
+        new Element("h1", { props: { textContent: "Hello from DOMicile!" } }),
+        new Element("p", { props: { textContent: "This page was served by Express." } })
+      )
+    ];
+    page.forEach(w => w.render(document.body));
+  </script>
+</body>
+</html>

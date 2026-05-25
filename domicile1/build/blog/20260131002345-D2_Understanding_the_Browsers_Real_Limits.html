@@ -1,0 +1,19 @@
+<h2>📅 Day 2 — Understanding the Browser’s Real Limits</h2>
+<p><strong>Title</strong>: <em>The Browser Is Not a Filesystem</em></p>
+<p>I went deep today into what the browser actually does when I call <code>fetch()</code>. I had this lingering suspicion that maybe the browser was “reading files locally” when I hit <code>/blog/index.json</code>. But no — the browser never touches the server’s disk. It only speaks HTTP.</p>
+<p>That means:</p>
+<ul>
+<li><p>No directory listing</p>
+</li>
+<li><p>No filesystem access</p>
+</li>
+<li><p>No reading Markdown directly</p>
+</li>
+<li><p>No walking folders</p>
+</li>
+</ul>
+<p>Everything must be explicitly served by Apache.</p>
+<p>This clarified something important: my static blog pipeline isn’t a hack. It’s the <em>correct</em> way to build a frontend-only system. The build step generates the files. Apache serves them. The frontend fetches them. That’s the entire model.</p>
+<p>It’s not abusing the client/server model. It is the model.</p>
+<h3>Peter Anderson</h3>
+<h4>12:27 AM Saturday, January 31, 2026</h4>
