@@ -1,4 +1,5 @@
 const base = "/js/rnd/domicile/domicile1";
+//const base = "/domicile1";
 const imagerelurl = "./images/";
 const cssrelurl = "./css/";
 const jsrelpath = "./js/";

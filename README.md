@@ -1,5 +1,7 @@
 # DOMicile
 
+[https://ifnowcode.github.io/domicile](https://ifnowcode.github.io/domicile)
+
 This README.md was written by AI and is basically focused ipsum lorem. This is the best I could do on short notice so don't trust it for accuracy. Domicile1 is the framework, example and test all rolled into one. Examples are good starters and server is an attempt at server side DOMicile. I created this because I wanted a light weight framework that didn't render multiple times but instead did all post render dynamic code in the DOM so the class objects are setup and rendered like React then each object can override a callback for `onload` to do live work in the DOM post render.
 
 ---
