@@ -1,5 +1,5 @@
 const startTime = performance.now();
-const tracedebug = false;
+const tracedebug = true;
 const tracewarn = true;
 const traceerror = true;
 

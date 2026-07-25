@@ -1,5 +1,5 @@
-const base = "/js/rnd/domicile/domicile1";
-//const base = "/domicile1";
+//const base = "/js/rnd/domicile/domicile1";
+const base = "/domicile1";
 const imagerelurl = "./images/";
 const cssrelurl = "./css/";
 const jsrelpath = "./js/";
@@ -9,9 +9,9 @@ const PUBLIC_ENDPOINTS = [
   { name: "JSONPlaceholder Posts", url: "https://jsonplaceholder.typicode.com/posts" },
   { name: "JSONPlaceholder Users", url: "https://jsonplaceholder.typicode.com/users" },
   { name: "JSONPlaceholder Todos", url: "https://jsonplaceholder.typicode.com/todos" },
-  { name: "Public APIs Directory", url: "https://api.publicapis.org/entries" },
-  { name: "Public APIs Categories", url: "https://api.publicapis.org/categories" },
-  { name: "Random Public API", url: "https://api.publicapis.org/random" }
+  //{ name: "Public APIs Directory", url: "https://api.publicapis.org/entries" },
+  //{ name: "Public APIs Categories", url: "https://api.publicapis.org/categories" },
+  //{ name: "Random Public API", url: "https://api.publicapis.org/random" }
 ];
 
 
@@ -190,6 +190,12 @@ if(run_app) {
           onchange: (e) => loadEndpoint(e.target.value)
         }
       });
+      
+      dropdown.addChild(
+        new Element("option", {
+          props: { value: "", textContent: "--- SELECT ---", disabled: true, selected: true  }
+        })
+      );
 
       // Populate dropdown
       PUBLIC_ENDPOINTS.forEach(ep => {
@@ -199,6 +205,10 @@ if(run_app) {
           })
         );
       });
+      
+      const viewer = new JSONViewer({
+        css: { marginTop: "2em" }
+      });
 
       const output = new Box({
         css: { padding: "20px", whiteSpace: "pre-wrap", fontFamily: "monospace" },
@@ -207,13 +217,15 @@ if(run_app) {
 
       function loadEndpoint(url) {
         const loader = new RESTLoader(url);
-
-        output.props.textContent = "Loading...";
-        output.refresh();
+        //console.log("0utput:", output);
+        output.dom.textContent = "Loading...";
+        //output.refresh();
 
         loader.onLoad = data => {
-          output.props.textContent = JSON.stringify(data, null, 2);
-          output.refresh();
+          viewer.renderJSON(data);
+          //console.log("0n L0a@d:", JSON.stringify(data, null, 2));
+          output.dom.textContent = JSON.stringify(data, null, 2);
+          //output.refresh();
         };
       }
 
@@ -221,6 +233,8 @@ if(run_app) {
         new Box({ css: { padding: "20px" } },
           new Element("h2", { props: { textContent: "Public API Browser" } }),
           dropdown,
+          viewer,
+          new Element("h3", { props: { textContent: "Raw Data" } }),
           output
         )
       ];

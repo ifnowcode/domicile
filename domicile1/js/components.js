@@ -3226,3 +3226,260 @@ const widgetRegistry = {
   TabbedWidget,
   Contact,
 };
+
+class DComponent extends Element {
+  constructor(tag, internal = {}, metadata = {}) {
+    const mergedProps = { ...(internal.props || {}), ...(metadata.props || {}) };
+    const mergedCSS   = { ...(metadata.css || {}),   ...(internal.css || {}) };
+
+    const merged = {
+      ...metadata,
+      ...internal,
+      props: mergedProps,
+      css: mergedCSS
+    };
+
+    super(tag, merged);
+  }
+}
+
+class JSONViewer extends DComponent {
+  constructor(/*json, */metadata = {}) {
+    super("div",
+      {
+        props: { className: "json-viewer" },
+        css: {
+          fontFamily: "monospace",
+          fontSize: "0.9rem",
+          lineHeight: "1.4",
+          padding: "1em",
+          border: "1px solid #444",
+          borderRadius: "6px",
+          background: "#111",
+          color: "#eee"
+        }
+      },
+      metadata
+    );
+
+    //if (json) this.renderJSON(json);
+    JSONViewer.injectCSS();
+  }
+
+  renderJSON(json) {
+    while (this.dom.firstChild) { this.dom.removeChild(this.dom.firstChild); }
+    this.dom.appendChild(this.buildNode(json));
+  }
+
+  buildNode(value, key = null, depth = 0) {
+    const container = document.createElement("div");
+    container.style.marginLeft = depth * 12 + "px";
+
+    // Primitive values
+    if (typeof value !== "object" || value === null) {
+      container.textContent = key !== null
+        ? `${key}: ${JSON.stringify(value)}`
+        : JSON.stringify(value);
+      return container;
+    }
+
+    // Collapsible object/array
+    const isArray = Array.isArray(value);
+    const summary = document.createElement("div");
+    summary.style.cursor = "pointer";
+    summary.style.userSelect = "none";
+    summary.style.color = "#9cf";
+
+    const label = key !== null ? key : "(root)";
+    const type = isArray ? "[]" : "{}";
+
+    summary.textContent = `${label} ${type}`;
+    container.appendChild(summary);
+
+    const children = document.createElement("div");
+    children.style.display = "none";
+    children.style.marginTop = "4px";
+
+    summary.addEventListener("click", () => {
+      children.style.display = children.style.display === "none" ? "block" : "none";
+    });
+
+    // Build children
+    if (isArray) {
+      value.forEach((item, index) => {
+        children.appendChild(this.buildNode(item, index, depth + 1));
+      });
+    } else {
+      Object.entries(value).forEach(([k, v]) => {
+        children.appendChild(this.buildNode(v, k, depth + 1));
+      });
+    }
+
+    container.appendChild(children);
+    return container;
+  }
+
+  static injectCSS() {
+    if (JSONViewer._cssInjected) return;
+    JSONViewer._cssInjected = true;
+
+    const style = document.createElement("style");
+    style.textContent = `
+      .json-viewer div {
+        transition: all 0.15s ease;
+      }
+      .json-viewer div:hover {
+        color: #cff;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+class JSONLViewer extends DComponent {
+  constructor(/*source, */metadata = {}) {
+    super("div",
+      {
+        props: { className: "jsonl-viewer" },
+        css: {
+          fontFamily: "monospace",
+          fontSize: "0.9rem",
+          lineHeight: "1.4",
+          padding: "1em",
+          border: "1px solid #444",
+          borderRadius: "6px",
+          background: "#111",
+          color: "#eee",
+          overflowY: "auto",
+          maxHeight: "600px"
+        }
+      },
+      metadata
+    );
+
+    // Accept JSONL string, array of lines, or DOM element
+    //if (source) this.loadSource(source);
+    JSONLViewer.injectCSS();
+  }
+
+  loadSource(source) {
+    let jsonlText = "";
+
+    if (typeof source === "string") {
+      jsonlText = source;
+    } else if (Array.isArray(source)) {
+      jsonlText = source.join("\n");
+    } else if (source instanceof HTMLElement) {
+      jsonlText = source.textContent || "";
+    } else {
+      jsonlText = "";
+    }
+
+    const lines = jsonlText.split(/\r?\n/).filter(Boolean);
+
+    this.renderLines(lines);
+  }
+
+  renderLines(lines) {
+    this.dom.innerHTML = ""; // deterministic rerender
+
+    lines.forEach((line, index) => {
+      let parsed;
+
+      try {
+        parsed = JSON.parse(line);
+      } catch (err) {
+        parsed = { error: "Invalid JSON", raw: line };
+      }
+
+      const entry = this.buildEntry(parsed, index);
+      this.dom.appendChild(entry);
+    });
+  }
+
+  buildEntry(value, index) {
+    const container = document.createElement("div");
+    container.style.marginBottom = "0.5em";
+
+    const header = document.createElement("div");
+    header.style.cursor = "pointer";
+    header.style.userSelect = "none";
+    header.style.color = "#9cf";
+    header.textContent = `Line ${index + 1}`;
+    container.appendChild(header);
+
+    const body = document.createElement("div");
+    body.style.display = "none";
+    body.style.marginLeft = "12px";
+    body.appendChild(this.buildNode(value, null, 1));
+    container.appendChild(body);
+
+    header.addEventListener("click", () => {
+      body.style.display = body.style.display === "none" ? "block" : "none";
+    });
+
+    return container;
+  }
+
+  buildNode(value, key = null, depth = 0) {
+    const container = document.createElement("div");
+    container.style.marginLeft = depth * 12 + "px";
+
+    if (typeof value !== "object" || value === null) {
+      container.textContent = key !== null
+        ? `${key}: ${JSON.stringify(value)}`
+        : JSON.stringify(value);
+      return container;
+    }
+
+    const isArray = Array.isArray(value);
+    const summary = document.createElement("div");
+    summary.style.cursor = "pointer";
+    summary.style.userSelect = "none";
+    summary.style.color = "#9cf";
+
+    const label = key !== null ? key : "(object)";
+    const type = isArray ? "[]" : "{}";
+
+    summary.textContent = `${label} ${type}`;
+    container.appendChild(summary);
+
+    const children = document.createElement("div");
+    children.style.display = "none";
+    children.style.marginTop = "4px";
+
+    summary.addEventListener("click", () => {
+      children.style.display = children.style.display === "none" ? "block" : "none";
+    });
+
+    if (isArray) {
+      value.forEach((item, index) => {
+        children.appendChild(this.buildNode(item, index, depth + 1));
+      });
+    } else {
+      Object.entries(value).forEach(([k, v]) => {
+        children.appendChild(this.buildNode(v, k, depth + 1));
+      });
+    }
+
+    container.appendChild(children);
+    return container;
+  }
+
+  static injectCSS() {
+    if (JSONLViewer._cssInjected) return;
+    JSONLViewer._cssInjected = true;
+
+    const style = document.createElement("style");
+    style.textContent = `
+      .jsonl-viewer div {
+        transition: all 0.15s ease;
+      }
+      .jsonl-viewer div:hover {
+        color: #cff;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
