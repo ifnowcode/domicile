@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script>
+      const path = location.pathname.replace(/\/$/, '');
+      console.log("404 Redirect Path", path);
+      console.log("404 Redirect Search", location.search);
+      console.log("404 Redirect Hash", location.hash);
+      window.location.replace('/js/rnd/domicile/examples/helloworld/404router/index.html#!' + path);
+      //location.replace('/index.html?redirect=' + encodeURIComponent(location.pathname + location.search + location.hash));
+    </script>
+  </head>
+  <body></body>
+</html>

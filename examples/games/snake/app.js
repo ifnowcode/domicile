@@ -37,12 +37,13 @@ const snake = new SnakeGame({
   fps: 10,
   props: { width: 700, height: 500 },
   css: { border: "5px solid red" },
-  events: { onScore: callback}
+  events: { onScore: callback},
+  autoStart: false
 });
 
 title.render(document.getElementById("root"));
 board.render(document.getElementById("root"));
 snake.render(document.getElementById("root"));
 
-console.log("************* Start Game *************");
+//console.log("************* Start Game *************");
 snake.start();

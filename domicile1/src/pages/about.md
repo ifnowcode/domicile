@@ -1,4 +1,4 @@
-# About DOMicile
+# About DOMicile (v1.0.0)
 
 DOMicile is an experiment in clarity, composability, and architectural honesty. It began as a personal exploration into what a UI framework could look like if it were built from first principles rather than inherited assumptions. Instead of chasing trends or mimicking existing libraries, DOMicile asks a simple question:
 

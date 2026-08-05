@@ -8,16 +8,18 @@ const shell = new AppShellBox({
     { label: "Blog", href: "/blog" }
   ],
   ctaText: "Get Started",
-  backgroundImage: "/assets/hero-bg.png",
+  backgroundImage: "./hero-bg.jpg",
   children: [
     new Box({ props: { textContent: "Build faster with DOMicile." }, css: {
       fontSize: "42px",
       fontWeight: "600",
-      marginBottom: "20px"
+      marginBottom: "20px",
+      color: "#fff",
     }}),
     new Box({ props: { textContent: "Composable UI. Deterministic layouts. No magic." }, css: {
       fontSize: "18px",
-      marginBottom: "30px"
+      marginBottom: "30px",
+      color: "#fff",
     }}),
     new Box({ props: { textContent: "Start Building" }, css: {
       background: "#000",

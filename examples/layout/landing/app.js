@@ -1,5 +1,5 @@
 //const page = [];
-const base = "/js/rnd/domicile/layout/landing"
+const base = "/js/rnd/domicile/examples/layout/landing"
 
 const landing = new LunaLandingPage({
   base,
@@ -17,11 +17,3 @@ const landing = new LunaLandingPage({
 });
 
 landing.render(document.body);
-
-
-/*
-Object.entries(page).forEach(([key, value]) => {
-  console.log("Render", key, value);
-  value.render(document.getElementById('root'));
-});
-*/

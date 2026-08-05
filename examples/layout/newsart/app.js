@@ -62,10 +62,10 @@ function NewsDemoPage() {
   return page;
 }
 
-const base = "/js/rnd/domicile/layout/newsart";
+const base = "/js/rnd/domicile/examples/layout/newsart";
 const color = getRandomColor();
 
-new NavBarLink({
+new NavBarHLink({
   base: base,
   logoText: `<span style="color:${color};"><b>DOM</b></span>icile Tribune`,
   logoImage: null, // "/assets/logo.png" or null if no image

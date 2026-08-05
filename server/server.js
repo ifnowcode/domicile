@@ -1,4 +1,4 @@
-// server.js
+// node server.js
 import express from "express";
 import cors from "cors";
 import postRouter from "./ep_posts.js";

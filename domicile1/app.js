@@ -1,19 +1,9 @@
 //const base = "/js/rnd/domicile/domicile1";
 const base = "/domicile1";
-const imagerelurl = "./images/";
-const cssrelurl = "./css/";
-const jsrelpath = "./js/";
+const imagerelurl = base + "/assets/images/";
+const cssrelurl = base + "/assets/css/";
+const jsrelpath = base + "/assets/js/";
 let navbar = null;
-
-const PUBLIC_ENDPOINTS = [
-  { name: "JSONPlaceholder Posts", url: "https://jsonplaceholder.typicode.com/posts" },
-  { name: "JSONPlaceholder Users", url: "https://jsonplaceholder.typicode.com/users" },
-  { name: "JSONPlaceholder Todos", url: "https://jsonplaceholder.typicode.com/todos" },
-  //{ name: "Public APIs Directory", url: "https://api.publicapis.org/entries" },
-  //{ name: "Public APIs Categories", url: "https://api.publicapis.org/categories" },
-  //{ name: "Random Public API", url: "https://api.publicapis.org/random" }
-];
-
 
 function getFlowerImageAlbum() {
    return {'title': 'Flowers', 'tracks': [
@@ -26,6 +16,7 @@ function getFlowerImageAlbum() {
       {'url': 'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
       {'url': 'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
       {'url': 'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
+      {'url': 'tile', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
    ]}
 }
 
@@ -35,6 +26,8 @@ function getMiscVideoAlbum() {
       {'url': 'sources/videosex/Sound – visualising sound waves — Science Learning Hub.mp4', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
       {'url': 'sources/videosin/external/frog_drums_m2-res_480p.mp4', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
       {'url': 'sources/videosin/external/Deep Layered Brown Noise ( 6 Hours ).mp4', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
+      {'url': 'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
+      {'url': 'tile', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
    ]}
 }
 
@@ -81,13 +74,14 @@ function getMasterTracksAlbum() {
       {'url': 'sources/audioin/music/original/mastertracks/Reggae.wav', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
       {'url': 'sources/audioin/music/original/mastertracks/StrengthEnough.wav', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
       {'url': 'sources/audioin/music/original/mastertracks/TheRhythmOf.wav', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
+      {'url': 'tile', 'category': '', 'title': '', 'creator': '', 'type': '', 'size': 0},
    ]}
 }
 
 async function loadAllBlogPosts() {
   // 1. Load index.json
-  const indexRes = await fetch("./build/blog/index.json");
-  console.log("${indexRes}", indexRes);
+  const indexRes = await fetch(base + "/build/blog/index.json");
+  //console.log("${indexRes}", indexRes);
   const files = await indexRes.json();
 
   const posts = [];
@@ -97,6 +91,7 @@ async function loadAllBlogPosts() {
 
     // 2. Load HTML content
     const res = await fetch(url);
+    if (!res.ok) continue;
     const html = await res.text();
 
     // 3. Extract metadata from filename
@@ -108,7 +103,7 @@ async function loadAllBlogPosts() {
     const title = rawTitle.replace(/_/g, " ");
 
     // 4. Wrap in a DOMicile Box
-    const box = new HTMLBox({ html });
+    //const box = new HTMLBox({ html });
 
     // 5. Push into array
     posts.push({
@@ -116,756 +111,488 @@ async function loadAllBlogPosts() {
       url,
       file,
       title,
-      box
+      html
     });
   }
-
-  // 6. Sort newest → oldest
-  posts.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 
   return posts;
 }
 
-const runAsync = true;
+function runApp(config={}, theme={}) {
+  const runAsync = true;
 
-let run_app = true; // false for scratch pad
-let no_router = false; // true for no router (original pre-router structure)
-
-if(run_app) {
-  if (no_router) {
-    const page = [];
-    console.log("${window.location.origin}:", window.location.origin);
-    console.log("${base}:", base);
-    let fullpdir = window.location.origin + base;
-    console.log("${fullpdir}:", fullpdir);
-    let url = window.location.href;
-    console.log("${url}:", url);
-    let base = url.slice(0, fullpdir.length);
-    let local = url.slice(fullpdir.length);
-    console.log("${base}:", base);
-    console.log("${local}:", local);
-    if (local === '/') {
-      page.push(new dep_NavBar());
-      page.push(new DemoWidget());
-      page.push(new ImageBox( {props: { src: "granite-raw-block-250x250.jpg" }}));
-      page.push(new Element('br'));
-      page.push(new Button( {props: {textContent: "Click Me!", onclick: () => console.log("Hello!")}} ));
-      page.push(new Element('a', { css: {display: 'block'}, props: {target: '_blank', textContent: "github.ifnowcode", href: "https://github.com/ifnowcode"}}));
-      page.push(new Element('a', { css: {display: 'block'}, props: {target: '_blank', textContent: "ifnowcode.github.io", href: "https://ifnowcode.github.io"}}));
-    } else if (local === '/about') {
-      page.push(new NavBar());
-      data = {
-        columns: [
-          { key: "name", label: "Name" },
-          { key: "mass", label: "Mass" }
-        ],
-        rows: [
-          { name: "Alice", mass: 42 },
-          { name: "Bob", mass: 55 },
-          { name: "Jan", mass: 80 },
-          { name: "Tyler", mass: 15 },
-        ]
-      }
-      page.push(new Element('h1', { props: {textContent: "About Us"}}));
-      let table = new Table(data);
-      page.push(table);
-      setTimeout(() => table.addRow({name: "Fred", mass:200 }), 2000);
-      setTimeout(() => table.addRow({name: "John", mass:100 }), 4000);
-    }
-
-    Object.entries(page).forEach(([key, value]) => {
-      console.log("Render", key, value);
-      value.render(document.body);
+  function HomePage() {
+    const layout = new TwoColumnResponsiveLayout({
+      css: {
+        margin: "10px",
+        background: "#151515",
+        boxShadow: "0px 8px 16px rgba(0,0,0,0.2)"
+      },
+      props: { id: "article-box", className: "clearfix" }
     });
 
-    Object.entries(page).forEach(([key, value]) => {
-      console.log("Serialize", value.toJSON());
-    });
-
-  } else {
-
-    function ApiBrowserPage() {
-      const dropdown = new Element("select", {
-        props: {
-          onchange: (e) => loadEndpoint(e.target.value)
-        }
-      });
-      
-      dropdown.addChild(
-        new Element("option", {
-          props: { value: "", textContent: "--- SELECT ---", disabled: true, selected: true  }
+    layout.addTo(
+      "left",
+      new Element(
+        "a",
+        { props: { href: "https://ifnowcode.github.io", target: "_blank" } },
+        new ImageBox({
+          css: { padding: "20px", display: "block", margin: "auto" },
+          props: { src: imagerelurl + "granite-raw-block-250x250.jpg" }
         })
-      );
+      )
+    );
 
-      // Populate dropdown
-      PUBLIC_ENDPOINTS.forEach(ep => {
-        dropdown.addChild(
-          new Element("option", {
-            props: { value: ep.url, textContent: ep.name }
-          })
-        );
-      });
-      
-      const viewer = new JSONViewer({
-        css: { marginTop: "2em" }
-      });
+    layout.addTo(
+      "right",
+      new ContentLoader({
+        base: base,
+        src: "/src/pages/reviews.md",
+        isMarkdown: true,
+        css: {margin: "20px"},
+        props: {className: "markdown-box"}
+      })
+    );
 
-      const output = new Box({
-        css: { padding: "20px", whiteSpace: "pre-wrap", fontFamily: "monospace" },
-        props: { textContent: "Select an endpoint above." }
-      });
+    return [layout];
+  }
 
-      function loadEndpoint(url) {
-        const loader = new RESTLoader(url);
-        //console.log("0utput:", output);
-        output.dom.textContent = "Loading...";
-        //output.refresh();
-
-        loader.onLoad = data => {
-          viewer.renderJSON(data);
-          //console.log("0n L0a@d:", JSON.stringify(data, null, 2));
-          output.dom.textContent = JSON.stringify(data, null, 2);
-          //output.refresh();
-        };
-      }
-
+  function HomePage1() {
       return [
-        new Box({ css: { padding: "20px" } },
-          new Element("h2", { props: { textContent: "Public API Browser" } }),
-          dropdown,
-          viewer,
-          new Element("h3", { props: { textContent: "Raw Data" } }),
-          output
+        new Box(
+          {
+            css: {
+              margin: '10px',
+              background: '#151515',
+              boxShadow: "0px 8px 16px rgba(0,0,0,0.2)",
+            },
+            props: { id: "article-box", className: 'clearfix'}
+          },
+            // LEFT COLUMN — Image
+            new Box({
+              props: {
+                className: 'reschild50',
+              }},
+              new Element("a",
+                { props: { href: "https://ifnowcode.github.io", target: "_blank" } },
+                new ImageBox({
+                  css: { padding: '20px', display: 'block', margin: 'auto'},
+                  props: { src: imagerelurl + "granite-raw-block-250x250.jpg" }
+                })
+              ),
+            ),
+            // RIGHT COLUMN — Markdown Content
+            new Box( { css: { margin: '10px'}, /*props: {className: 'reschild50'}*/},
+              new ContentLoader({
+                base: base,
+                src: "/src/pages/reviews.md",
+                isMarkdown: true
+              })
+            )
         )
       ];
-    }
+  }
 
-    async function BlogPageDLAsync() {
-      console.log("** BlogPageDLAsync");
-      const i = new IndexLoader(base + "/build/blog");
-      const posts = await i.loadIndex();
-      console.log("** DL Post", posts);
-      /*
-      const container = new Box({
-        css: { display: "flex", flexDirection: "column", gap: "40px" }
-      });
+  function SlidesPage() {
+    const slideshow = new ManualSlideshow({ images: [
+      'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
+      'sources/imagesex/Gallery/Flowers/220108_web.jpg',
+      'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
+      'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
+    ]});
 
-      posts.forEach(post => {
-        console.log("[file] ** Add Loader", post);
-        container.addChild(post.box);
-      });
-      return [container];
-      */
-      return posts.map(p => p.box);
-    }
+    const advshow = new AdvancedSlideshow({ images: [
+      { src: 'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg', caption: "Caption Text" },
+      { src: 'sources/imagesex/Gallery/Flowers/220108_web.jpg', caption: "Caption Two" },
+      { src: 'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg', caption: "Caption Three" }
+    ]});
 
-    async function BlogPageDLAsync2() {
-      console.log("** BlogPageDLAsync");
-      const loader = new IndexLoader(base + "/build/blog", true);
-      console.log("** onLoad DL Post");
-      loader.onLoad = posts => {
-        console.log("Loader onLoad");
-      };
-      return []; // doesn't look like this was ever working
-    }
+    const gallery = new ThumbnailSlideshow({ images: [
+      'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
+      'sources/imagesex/Gallery/Flowers/220108_web.jpg',
+      //'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
+      //'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
+      //'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
+      //'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
+      //'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
+      //'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
+    ]});
 
-    function PostsPage() {
-      console.log("PostsPage loading...");
-      const loader = new RESTLoader("http://localhost:3000/api/posts");
+    const grid = new ResponsiveImageGrid([
+      [
+        'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
+        'sources/imagesex/Gallery/Flowers/220108_web.jpg',
+        'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
+      ],
+      [
+        'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
+        'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
+      ],
+      [
+        'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
+        'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
+      ],
+      [
+        'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
+        'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
+      ]
+    ]);
 
-      const box = new Box({
-        css: { padding: "20px" },
-        props: { id: 'posts', className: 'post-office', textContent: "Loading posts..." }
-      });
+    const magic = new MasonryImageGrid({ images: [
+      'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
+      'sources/imagesex/Gallery/Flowers/220108_web.jpg',
+      'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
+      'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
+    ]});
 
-      loader.onLoad = posts => {
-        console.log("Loader onload", posts);
-        box.children = []; // clear
-        posts.forEach(post => {
-          box.addChild(
-            new Box({
-                css: { marginBottom: "20px" },
-                props: { className: 'post-box' }
-              },
-              new Element("h2", { props: { textContent: post.title } }),
-              new Element("p", { props: { textContent: post.body } })
-            )
-          );
-          box.addChild(new Element('hr'));
-        });
-        box.refresh();
-      };
+    const lightbox = new LightboxThumbnailViewer({ images: [
+      'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
+      'sources/imagesex/Gallery/Flowers/220108_web.jpg',
+      'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
+      'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
+    ]});
 
-      return [box];
-    }
+    const carousel = new PictureCarousel([
+      'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
+      'sources/imagesex/Gallery/Flowers/220108_web.jpg',
+      'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
+      'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
+      'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
+    ]);
 
-    function HomePage() {
-      const layout = new TwoColumnResponsiveLayout({
-        css: {
-          margin: "10px",
-          background: "#151515",
-          boxShadow: "0px 8px 16px rgba(0,0,0,0.2)"
-        },
-        props: { id: "article-box", className: "rescontainer" }
-      });
+    return [
+        new SlideshowDemo(),
+        carousel,
+        slideshow,
+        advshow,
+        gallery,
+        grid,
+        magic,
+        lightbox,
+      ];
+  }
 
-      layout.addTo(
-        "left",
-        new Element(
-          "a",
-          { props: { href: "https://ifnowcode.github.io", target: "_blank" } },
-          new ImageBox({
-            css: { padding: "20px", display: "block", margin: "auto" },
-            props: { src: "./images/granite-raw-block-250x250.jpg" }
-          })
-        )
-      );
+  function CarouselPage() {
+    return [
+        new Carousel({ album: getFlowerImageAlbum() }),
+        new Carousel({ album: getMiscVideoAlbum() }),
+        new Carousel({ album: getMasterTracksAlbum() }),
+        new Carousel({ album: getTestMediaAlbum() }),
+      ];
+  }
 
-      layout.addTo(
-        "right",
+  function AboutPage() {
+
+    return [
+      new Box( {},
         new ContentLoader({
           base: base,
-          src: "/src/pages/reviews.md",
-          isMarkdown: true,
-          css: {margin: "20px"},
-          props: {className: "markdown-box"}
+          src: "/src/pages/about.md",
+          isMarkdown: true
         })
-      );
+      ),
+    ];
+  }
 
-      return [layout];
-    }
+  function ContactPage() {
 
-    function HomePage1() {
-        return [
-          new Box(
-            {
-              css: {
-                margin: '10px',
-                background: '#151515',
-                boxShadow: "0px 8px 16px rgba(0,0,0,0.2)",
-              },
-              props: { id: "article-box", className: 'rescontainer'}
-            },
-              // LEFT COLUMN — Image
-              new Box({
-                props: {
-                  className: 'reschild50',
-                }},
-                new Element("a",
-                  { props: { href: "https://ifnowcode.github.io", target: "_blank" } },
-                  new ImageBox({
-                    css: { padding: '20px', display: 'block', margin: 'auto'},
-                    props: { src: "./images/granite-raw-block-250x250.jpg" }
-                  })
-                ),
-              ),
-              // RIGHT COLUMN — Markdown Content
-              new Box( { css: { margin: '10px'}, /*props: {className: 'reschild50'}*/},
-                new ContentLoader({
-                  base: base,
-                  src: "/src/pages/reviews.md",
-                  isMarkdown: true
-                })
-              )
-          )
-        ];
-    }
+    return [
+      new Box( {},
+        new ContentLoader({
+          base: base,
+          src: "/src/pages/contact.md",
+          isMarkdown: true
+        })
+      ),
+      new Contact(),
+    ];
+  }
 
-    function SlidesPage() {
-      const slideshow = new ManualSlideshow({ images: [
-        'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
-        'sources/imagesex/Gallery/Flowers/220108_web.jpg',
-        'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
-        'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
-      ]});
-
-      const advshow = new AdvancedSlideshow({ images: [
-        { src: 'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg', caption: "Caption Text" },
-        { src: 'sources/imagesex/Gallery/Flowers/220108_web.jpg', caption: "Caption Two" },
-        { src: 'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg', caption: "Caption Three" }
-      ]});
-
-      const gallery = new ThumbnailSlideshow({ images: [
-        'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
-        'sources/imagesex/Gallery/Flowers/220108_web.jpg',
-        'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
-        'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
-      ]});
-
-      const grid = new ResponsiveImageGrid([
-        [
-          'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
-          'sources/imagesex/Gallery/Flowers/220108_web.jpg',
-          'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
-        ],
-        [
-          'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
-          'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
-        ],
-        [
-          'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
-          'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
-        ],
-        [
-          'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
-          'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
-        ]
-      ]);
-
-      const magic = new MasonryImageGrid({ images: [
-        'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
-        'sources/imagesex/Gallery/Flowers/220108_web.jpg',
-        'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
-        'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
-      ]});
-
-      const lightbox = new LightboxViewer({ images: [
-        'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
-        'sources/imagesex/Gallery/Flowers/220108_web.jpg',
-        'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
-        'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
-      ]});
-
-      const carousel = new PictureCarousel([
-        'sources/imagesex/Gallery/Flowers/external-content.duckduckgo.com.jpg',
-        'sources/imagesex/Gallery/Flowers/220108_web.jpg',
-        'sources/imagesex/Gallery/Flowers/FRjE9VYUUAAkpFd.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-1122626b.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-133472.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-3686216.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-369433.jpg',
-        'sources/imagesex/Gallery/Flowers/pexels-photo-4041409.jpg',
-        'sources/imagesex/Gallery/Flowers/_117100719_flower_bloom_02.jpg',
-      ]);
-
-      return [
-          new SlideshowDemo(),
-          carousel,
-          slideshow,
-          advshow,
-          gallery,
-          grid,
-          magic,
-          lightbox,
-        ];
-    }
-
-    function CarouselPage() {
-      return [
-          new CarouselDemo({ album: getFlowerImageAlbum() }),
-          new CarouselDemo({ album: getMiscVideoAlbum() }),
-          new CarouselDemo({ album: getMasterTracksAlbum() }),
-          new CarouselDemo({ album: getTestMediaAlbum() }),
-        ];
-    }
-
-    function Test1Tab() {
-      return [
-          new DemoWidget(),
-          new Element("a", { props: { href: "https://ifnowcode.github.io", target: "_blank" }}, new ImageBox({ props: { src: imagerelurl + "granite-raw-block-250x250.jpg" }})),
-          new Element("br"),
-          new Button({ props: { textContent: "Click Me!", onclick: `alert("Leave me alone!")` }}),
-          new ButtonCounter({css: { background: 'red' }}),
-          new Element("a", { css: { display: "block" }, props: { href: "https://github.com/ifnowcode", target: "_blank", textContent: "github.ifnowcode" }}),
-          new Element("a", { css: { display: "block" }, props: { href: "https://ifnowcode.github.io", target: "_blank", textContent: "ifnowcode.github.io" }}),
-        ]
-    }
-
-    function Test2Tab() {
-      return [
-        new ListWithControls({
-          initialItems: ['First task', 'Second task', 'Third task']
-        }),
-        new ModalDemo(),
-        new GridLayoutDemo(),
+  function TBDPage() {
+    return [
+        new UnderConstruction(),
       ];
-    }
+  }
 
-    function Test3Tab() {
-      const data = {
-        columns: [
-          { key: "name", label: "Name" },
-          { key: "mass", label: "Mass" }
-        ],
-        rows: [
-          { name: "Alice", mass: 42 },
-          { name: "Bob", mass: 55 },
-          { name: "Jan", mass: 80 },
-          { name: "Tyler", mass: 15 }
-        ]
-      };
-
-      const table = new Table(data);
-
-      setTimeout(() => table.addRow({ name: "Fred", mass: 200 }), 2000);
-      setTimeout(() => table.addRow({ name: "John", mass: 100 }), 4000);
-
-      return [
-        new DigitalClock(),
-        new Element("p", { props: { textContent: "Test content" } }),
-        new Box({}, table),
-        new Element('br'),
-        new Element('hr'),
-        //new Table2(data),
+  function Error404Page() {
+    return [
+        new NotFound404({ base: base }),
       ];
+  }
+
+  function BlogTemplate(contents = []) {
+    let modcontent = [];
+    for (const content of contents) {
+      modcontent.push(content);
+      modcontent.push(new Element('hr'));
     }
+    return PageTemplate(modcontent);
+  }
 
-    function Test4Tab() {
-      return [
-        new HTMLBox({ html: "<h1>This is Test4</h1>" }),
-        new Typewriter(),
-        new Calendar({
-          onSelect: ({ year, month, day }) => {
-            console.log("Selected:", year, month + 1, day);
-          }
-        }),
-      ];
-    }
+  function PageTemplate(contents = []) {
+    const page = [];
 
-    function getTab(fnPageContents=Error404Page) {
-      const tab = [];
-      //tab.push(new NavBar());
-      const contents = fnPageContents();
-      contents.forEach((key,value) => {
-        tab.push(key);
-      });
-      //tab.push(new Footer());
-      return tab;
-    }
+    const color = getRandomColor();
 
-    function TestPage() {
-      const tabbed = new TabbedWidget({
-        tabs: [
-          { label: "Test1", content: getTab(Test1Tab)},
-          { label: "Test2", content: getTab(Test2Tab)},
-          { label: "Test3", content: getTab(Test3Tab)},
-          { label: "Test4", content: getTab(Test4Tab)},
-        ]
-      });
+    console.log("UREL:", base, color);
 
-      return [
-          tabbed,
-        ];
-    }
-
-    function AboutPage() {
-
-      return [
-        new Box( {},
-          new ContentLoader({
-            base: base,
-            src: "/src/pages/about.md",
-            isMarkdown: true
-          })
-        ),
-      ];
-    }
-
-    function ContactPage() {
-
-      return [
-        new Box( {},
-          new ContentLoader({
-            base: base,
-            src: "/src/pages/contact.md",
-            isMarkdown: true
-          })
-        ),
-        new Contact(),
-      ];
-    }
-
-    function TBDPage() {
-      return [
-          new UnderConstruction(),
-        ];
-    }
-
-    function Error404Page() {
-      return [
-          new NotFound404({ base: base }),
-        ];
-    }
-
-    function BlogPage() {
-      return [
-        new ContentLoader({ base: base, src: "/src/pages/blog/20260130204559-D1_Wrestling_With_Async_and_the_Serial_Mindset.md", isMarkdown: true }),
-        new ContentLoader({ base: base, src: "/build/blog/20260131002345-D2_Understanding_the_Browsers_Real_Limits.html", isMarkdown: false }),
-        new ContentLoader({ base: base, src: "/src/pages/blog/20260131011300-D3_The_ContentLoader_Epiphany.md", isMarkdown: true }),
-        new ContentLoader({ base: base, src: "/src/pages/blog/20260131011301-D4_Accepting_the_Frontends_Boundaries.md", isMarkdown: true }),
-        new ContentLoader({ base: base, src: "/src/pages/blog/20260131011302-D5_The_Architecture_Finally_Clicks.md", isMarkdown: true }),
-      ];
-    }
-
-    async function BlogPageAsync() {
-      console.log("loadAllBlogPosts");
-      const posts = await loadAllBlogPosts(); // async
-      console.log("Posts", posts);
-      return posts.map(p => p.box);
-    }
-
-    function BlogTemplate(contents = []) {
-      let modcontent = [];
-      for (const content of contents) {
-        modcontent.push(content);
-        modcontent.push(new Element('hr'));
-      }
-      return PageTemplate(modcontent);
-    }
-
-    function PageTemplate(contents = []) {
-      const page = [];
-
-      const color = getRandomColor();
-
-      console.log("UREL:", base, color);
-
-      navbar = new NavBarTopHoverDD1X({
-        base: base,
-        logoText: "DOMicile",
-        logoHTML: `<span style="color:${color};"><b>DOM</b></span>icile`,
-        //logoImage: imagerelurl + '/house-9131573_1920.png',
-        menus: [
-          { label: "Home", href: "/" },
-          { label: "Media", items: [
-            { label: "Slides", href: "/slides" },
-            { label: "Carousel", href: "/carousel" },
-           ] },
-          { label: "Pages", items: [
+    navbar = new NavBarTopClickerSticker({
+      base: base,
+      logoText: "DOMicile",
+      logoHTML: `<span style="color:${color};"><b>DOM</b></span>icile`,
+      logoImage: imagerelurl + 'granite-raw-block-250x250.jpg',
+      menus: [
+        //{ label: "Home", href: "/" },
+        { label: "Show", items: [
+            { label: "Gallery", href: "/gallery" },
+            { label: "Media", href: "/mediaview" },
+         ]
+        },
+        { label: "Pages", items: [
             { label: "Blog", href: "/blog" },
             { label: "Blog1", href: "/blog1" },
             { label: "Blog2", href: "/blog2" },
             { label: "Blog3", href: "/blog3" },
             { label: "Posts", href: "/posts" },
             { label: "API Browser", href: "/api-browser" },
-           ] },
-          { label: "Tests", items: [
+         ]
+        },
+        { label: "Tests", items: [
             { label: "Test", href: "/test" },
             { label: "More", items: [
-              { label: "Test1", href: "/test" },
-              { label: "And More", items: [
                 { label: "Test1", href: "/test" },
-              ] },
+                { label: "And More", items: [
+                    { label: "Test1", href: "/test" },
+                ] },
             ] },
             { label: "Test2", href: "/test" },
             { label: "Yet More", items: [
-              { label: "And More", items: [
+                { label: "And More", items: [
+                    { label: "Test1", href: "/test" },
+                ] },
                 { label: "Test1", href: "/test" },
-              ] },
-              { label: "Test1", href: "/test" },
             ] },
             { label: "Still More", items: [
-              { label: "Test1", href: "/test" },
+                { label: "Test1", href: "/test" },
             ] },
-           ] },
-          { label: "About Us", items: [
+         ]
+        },
+        { label: "Help", items: [
             { label: "Contact", href: "/contact" },
             { label: "About", href: "/about" },
-           ] },
-        ]
-      });
-      page.push(navbar);
-
-      contents.forEach(widget => page.push(widget));
-
-      page.push(new Footer());
-
-      return page;
-    }
-
-    function getPage(fnPageContents=Error404Page) {
-      const page = [];
-      //page.push(new NavBar());
-      //page.push(new NavBar2());
-      page.push(new NavBarLink({
-        base: base,
-        logoText: "DOMicile",
-        logoImage: null, // "/assets/logo.png" or null if no image
-        links: [
-          { label: "Home", href: "/" },
-          { label: "Slides", href: "/slides" },
-          { label: "Carousel", href: "/carousel" },
-          { label: "Blog", href: "/blog" },
-          { label: "Test", href: "/test" },
-          { label: "About", href: "/about" }
-        ]
-      }));
-      const contents = fnPageContents(); // <-- FIXED
-      contents.forEach((key, value) => {
-        //console.log("Push", key, value);
-        page.push(key);
-      });
-      page.push(new Footer());
-      return page;
-    }
-
-    let router = null;
-
-    if (!runAsync) {
-      router = new Router({
-        base: base,
-        routes: {
-          "/": () => getPage(HomePage),
-          "/slides": () => getPage(SlidesPage),
-          "/carousel": () => getPage(CarouselPage),
-          "/blog": () => getPage(BlogPage),
-          "/tbd": () => getPage(TBDPage),
-          "/test": () => getPage(TestPage),
-          "/about": () => getPage(AboutPage),
-          "/404": () => getPage(Error404Page),
-        }
-      });
-
-      // Initial render
-      console.log("[render] Initial");
-      let page = router.resolve();
-      page.forEach(widget => widget.render(document.body));
-
-      // Re-render on navigation
-      router.listen(newPage => {
-        document.body.innerHTML = "";
-        newPage.forEach(widget => widget.render(document.body));
-      });
-
-      //Object.entries(router.resolve()).forEach(([key, value]) => {
-      //  console.log("Serialize", key, value.toJSON());
-      //});
-    } else {
-      console.log("Running Async");
-
-      class Security {
-        static check(path, route) {
-          console.group("SECURITY FIREWALL");
-          console.log("PATH:", path);
-          console.log("ROUTES:", route);
-          console.log("BASE:", base);
-          console.log("HREF:", window.location.href);
-          console.log("ORIGIN:", window.location.origin);
-          console.log("COOKIE:", document.cookie);
-          console.log("USERAGENT:", navigator.userAgent);
-          console.log("WINDOW:", window);
-          console.log("LOCATION:", location);
-          console.log("HISTORY:", history);
-          console.log("PERFORMANCE:", performance);
-          console.groupEnd();
-        }
-      };
-
-      router = new RouterAsync({
-        base: base,
-        firewall: Security.check,
-        template: PageTemplate,
-        page404: Error404Page,
-        template404: PageTemplate,
-        routes: {
-          "/":        { contents: HomePage },
-          "/slides":  { contents: SlidesPage },
-          "/carousel":{ contents: CarouselPage },
-          "/blog":    { contents: BlogPage, template: BlogTemplate },
-          "/blog1":   { contents: BlogPageAsync, template: BlogTemplate },
-          "/blog2":   { contents: BlogPageDLAsync, template: BlogTemplate },
-          "/blog3":   { contents: BlogPageDLAsync2, template: BlogTemplate },
-          "/posts":   { contents: PostsPage },
-          "/api-browser":{ contents: ApiBrowserPage },
-          "/tbd":     { contents: TBDPage, template: PageTemplate },
-          "/test":    { contents: TestPage },
-          "/contact": { contents: ContactPage, template: PageTemplate },
-          "/about":   { contents: AboutPage, template: PageTemplate },
+         ] 
         },
-        runAsync: true,
-      });
+      ]
+    });
+    page.push(navbar);
 
-      function applyLayout(components) {
-        const layout = new CollapsableSidebarFlexLayout();
+    contents.forEach(widget => page.push(widget));
 
-        layout.addTo("sidebar", new Link({
-            props: { href: "/about", textContent: "About Us" },
-            css: { color: "blue", cursor: "pointer" }
-          })
-        );
-        layout.addTo("main", components);
-        return [layout];
+    page.push(new Footer(config));
+    page.push(new ScrollToTop());
+
+    return page;
+  }
+
+  function getPage(fnPageContents=Error404Page) {
+    const page = [];
+    //page.push(new NavBar());
+    //page.push(new NavBar2());
+    page.push(new NavBarHLink({
+      base: base,
+      logoText: "DOMicile",
+      logoImage: null, // "/assets/logo.png" or null if no image
+      links: [
+        { label: "Home", href: "/" },
+        { label: "Slides", href: "/slides" },
+        { label: "Carousel", href: "/carousel" },
+        { label: "Blog", href: "/blog" },
+        { label: "Test", href: "/test" },
+        { label: "About", href: "/about" }
+      ]
+    }));
+    const contents = fnPageContents(); // <-- FIXED
+    contents.forEach((key, value) => {
+      //console.log("Push", key, value);
+      page.push(key);
+    });
+    page.push(new Footer());
+    return page;
+  }
+
+  //let router = null;
+  if (!runAsync) {
+    router = new Router({
+      base: base,
+      routes: {
+        "/": () => getPage(HomePage1),
+        "/gallery": () => getPage(SlidesPage),
+        "/mediaview": () => getPage(CarouselPage),
+        "/blog": () => getPage(BlogPage),
+        "/tbd": () => getPage(TBDPage),
+        "/test": () => getPage(TestPage),
+        "/about": () => getPage(AboutPage),
+        "/404": () => getPage(Error404Page),
       }
+    });
+
+    // Initial render
+    console.log("[render] Initial");
+    let page = router.resolve();
+    page.forEach(widget => widget.render(document.body));
+
+    // Re-render on navigation
+    router.listen(newPage => {
+      document.body.innerHTML = "";
+      newPage.forEach(widget => widget.render(document.body));
+    });
+
+    //Object.entries(router.resolve()).forEach(([key, value]) => {
+    //  console.log("Serialize", key, value.toJSON());
+    //});
+  } else {
+    console.log("Running Async");
+
+    class Security {
+      static check(path, routes) {
+        console.groupCollapsed("SECURITY FIREWALL");
+        console.log("PATH:", path);
+        console.log("ROUTES:", routes);
+        console.log("BASE:", base);
+        console.log("HREF:", window.location.href);
+        console.log("ORIGIN:", window.location.origin);
+        console.log("COOKIE:", document.cookie);
+        console.log("USERAGENT:", navigator.userAgent);
+        console.log("WINDOW:", window);
+        console.log("LOCATION:", location);
+        console.log("HISTORY:", history);
+        console.log("PERFORMANCE:", performance);
+        console.groupEnd();
+        return true;
+      }
+    };
+
+    router = new RouterAsync({
+      base: base,
+      firewall: Security.check,
+      template: PageTemplate,
+      page404: Error404Page,
+      template404: PageTemplate,
+      routes: {
+        "/":        { contents: HomePage },
+        "/gallery":  { contents: SlidesPage },
+        "/mediaview":{ contents: CarouselPage },
+        "/blog":    { contents: BlogPage, template: BlogTemplate },
+        "/blog1":   { contents: BlogPageAsync, template: BlogTemplate },
+        "/blog2":   { contents: BlogPageDLAsync, template: BlogTemplate },
+        "/blog3":   { contents: BlogPageDLAsync2, template: BlogTemplate },
+        "/posts":   { contents: PostsPage },
+        "/api-browser":{ contents: ApiBrowserPage },
+        "/tbd":     { contents: TBDPage, template: PageTemplate },
+        "/test":    { contents: TestPage },
+        "/contact": { contents: ContactPage, template: PageTemplate },
+        "/about":   { contents: AboutPage, template: PageTemplate },
+      },
+      runAsync: true,
+    });
+
+    function applyLayout(components) {
+      const layout = new CollapsableSidebarFlexLayout();
+
+      // this invoked RouterAsync.listen
+      /*layout.addTo("sidebar", new Navigator({
+          props: { href: "/about", textContent: "About Us" },
+          css: { color: "white", cursor: "pointer" }
+        })
+      );
+      */
+
+      layout.addTo("sidebar", new NavBarVLink({
+          base: base,
+          //logoText: "DOMicile",
+          //logoImage: null, // "/assets/images/logo.png" or null if no image
+          links: [
+            { label: "Home", href: "/" },
+            { label: "Gallery", href: "/gallery" },
+            { label: "Media", href: "/mediaview" },
+            { label: "Blog", href: "/blog1" },
+            { label: "Test", href: "/test" },
+            { label: "About", href: "/about" },
+            { label: "Contact", href: "/contact" }
+          ]
+        })
+      );
+      layout.addTo("main", components);
+      return [layout];
+    }
+
+    function render({contents, template}) {
+      /* deprecate if not needed, I believe the router handles this cleanly
+      const components = template             // if local template
+        ? template(contents)                  // use local template
+        : this.metadata?.template             // if global template
+          ? this.metadata.template(contents)  // use global template
+          : contents;                         // no template just return contents
+      */
+      const components = template(contents); 
+
+      const page = applyLayout(components);
       
-      // Initial render (sync caller)
-      console.log("[render] Initial");
-      router.resolve(function({ contents, template }) {
-        //document.body.innerHTML = "";
+      page.forEach(widget => {
+        widget.render(document.body);
 
-        const components = template             // if local template
-          ? template(contents)                  // use local template
-          : this.metadata?.template             // if global template
-            ? this.metadata.template(contents)  // use global template
-            : contents;                         // no template just return contents
-
-        const page = applyLayout(components);
-
-        page.forEach(widget => {
-          widget.render(document.body);
-
-          console.log("HTML>", beautifyHTML(widget.toHTML()));
-          console.log("Serialize>", widget.toJSON());
-        });
-      });
-
-      // Initialize the GUI
-      //console.log("DatGui Initialization", navbar);
-      //initNavBarGUI(navbar);
-
-      // Re-render on navigation (sync caller)
-      router.listen(function({ contents, template }) {
-        //document.body.innerHTML = "";
-        alert("LISTEN UP!");
-        //let page = applyPageTemplate(contents);
-        const page = template                   // local template
-          ? template(contents)                  // use local template
-          : this.metadata?.template             // global template
-            ? this.metadata.template(contents)  // use global template
-            : contents;                         // no template just return contents
-        page.forEach(widget => {
-          widget.render(document.body);
-          console.log("Serialize", widget.toJSON());
-        });
+        console.log("HTML>", beautifyHTML(widget.toHTML()));
+        console.log("Serialize>", widget.toJSON());
       });
       
+      applyJSONTheme(theme);
+
       const effect = new LavaGlow();
       effect.render(document.body);
       effect.dom.style.zIndex = -1;
       effect.start();
-
     }
+
+    router.resolve(function({ contents, template }) {
+      console.log("[render] Initial");
+      document.body.innerHTML = "";
+      render({contents, template});
+    });
+
+    // Re-render on navigation (sync caller)
+    router.listen(function({ contents, template }) {
+      document.body.innerHTML = "";
+      //alert("router.listener was invoked!");
+      render({contents, template});
+    });
   }
-} else {
+};
 
-  testFlexNavLayout();
-
-}
-
-function testNavWithLayout() {
+function testNavWithLayout(config={}) {
 
   const page = [];
 
-  const nav = new NavBarLink({
+  const nav = new NavBarHLink({
         base: base,
         logoText: "DOMicile",
         logoImage: null, // "/assets/logo.png" or null if no image
@@ -881,7 +608,7 @@ function testNavWithLayout() {
   page.push(nav);
   const layout = new FixedSidebarFlexLayout();
 
-  layout.addTo("sidebar", new Link({
+  layout.addTo("sidebar", new Navigator({
       props: { href: "/about", textContent: "About Us" },
       css: { color: "blue", cursor: "pointer" }
     })
@@ -901,7 +628,7 @@ function testNavWithLayout() {
   page.forEach(widget => widget.render(document.body));
 }
 
-function testStorageLoader() {
+function testStorageLoader(config={}) {
   const settings = new StorageLoader("CMS", "settings", "theme");
   const box = new HTMLBox({ html: "Loading..." });
   //settings.save('Blue Ocean');
@@ -912,7 +639,7 @@ function testStorageLoader() {
   box.render(document.body);
 }
 
-function testBoxTwo() {
+function testBoxTwo(config={}) {
   let navbar = new NavBarTopHoverDD1X({
       base: base,
       logoText: "DOMicile",
@@ -927,16 +654,16 @@ function testBoxTwo() {
   console.log("To HTML", navbar.toHTML());
 }
 
-function testSidebarFlexLayout() {
+function testSidebarFlexLayout(config={}) {
 
   const page = new FixedSidebarFlexLayout();
 
-  page.addTo("sidebar", new Link({
+  page.addTo("sidebar", new Navigator({
       props: { href: "/about", textContent: "About Us" },
       css: { color: "blue", cursor: "pointer" }
     })
   );
-  page.addTo("main", new NavBarLink({
+  page.addTo("main", new NavBarHLink({
         base: base,
         logoText: "DOMicile",
         logoImage: null, // "/assets/logo.png" or null if no image
@@ -962,16 +689,16 @@ function testSidebarFlexLayout() {
   page.render(document.body);
 }
 
-function testCollapsableSidebarFlexLayout() {
+function testCollapsableSidebarFlexLayout(config={}) {
 
   const page = new CollapsableSidebarFlexLayout();
 
-  page.addTo("sidebar", new Link({
+  page.addTo("sidebar", new Navigator({
       props: { href: "/about", textContent: "About Us" },
       css: { color: "blue", cursor: "pointer" }
     })
   );
-  page.addTo("main", new NavBarLink({
+  page.addTo("main", new NavBarHLink({
         base: base,
         logoText: "DOMicile",
         logoImage: null, // "/assets/logo.png" or null if no image
@@ -999,7 +726,7 @@ function testCollapsableSidebarFlexLayout() {
   page.render(document.body);
 }
 
-function testFlexNavLayout() {
+function testFlexNavLayout(config={}) {
   const page = new FlexNavLayout({
     base,
     logoText: "FlexPage",
@@ -1023,3 +750,78 @@ function testFlexNavLayout() {
   console.log("REEEEEENNNNNNNNDDDDDEEEEERRRRRRRRRRRRRRRRRRRRR");
   page.render(document.body);
 }
+
+function testNoRouterOriginal(config={}) {
+  const page = [];
+  console.log("${window.location.origin}:", window.location.origin);
+  console.log("${base}:", base);
+  let fullpdir = window.location.origin + base;
+  console.log("${fullpdir}:", fullpdir);
+  let url = window.location.href;
+  console.log("${url}:", url);
+  let b = url.slice(0, fullpdir.length);
+  let local = url.slice(fullpdir.length);
+  console.log("${b}:", b);
+  console.log("${local}:", local);
+  if (local === '/') {
+    page.push(new dep_NavBar({base}));
+    page.push(new DemoWidget()); // deprecated
+    page.push(new ImageBox( {props: { src: imagerelurl + "granite-raw-block-250x250.jpg" }}));
+    page.push(new Element('br'));
+    page.push(new Button( {props: {textContent: "Click Me!", onclick: () => console.log("Hello!")}} ));
+    page.push(new Element('a', { css: {display: 'block'}, props: {target: '_blank', textContent: "github.ifnowcode", href: "https://github.com/ifnowcode"}}));
+    page.push(new Element('a', { css: {display: 'block'}, props: {target: '_blank', textContent: "ifnowcode.github.io", href: "https://ifnowcode.github.io"}}));
+  } else if (local === '/about') {
+    page.push(new dep_NavBar({base}));
+    data = {
+      columns: [
+        { key: "name", label: "Name" },
+        { key: "mass", label: "Mass" }
+      ],
+      rows: [
+        { name: "Alice", mass: 42 },
+        { name: "Bob", mass: 55 },
+        { name: "Jan", mass: 80 },
+        { name: "Tyler", mass: 15 },
+      ]
+    }
+    page.push(new Element('h1', { props: {textContent: "About Us"}}));
+    page.push(new Table(data));
+    page.push(new Table(data));
+    setTimeout(() => table.addRow({name: "Fred", mass:200 }), 2000);
+    setTimeout(() => table.addRow({name: "John", mass:100 }), 4000);
+  }
+
+  Object.entries(page).forEach(([key, value]) => {
+    console.log("Render", key, value);
+    value.render(document.body);
+  });
+
+  Object.entries(page).forEach(([key, value]) => {
+    console.log("Serialize", value.toJSON());
+  });
+}
+
+async function main() {
+  const config = await loadJsonFile(base + "/config.json");
+  const theme = await loadJSONTheme(base + "/assets/themes/domicile.json");
+  if (true) {
+    runApp(config ?? {}, theme ?? {});
+  } else {
+    testNoRouterOriginal(config ?? {});
+  }
+}
+main().catch(console.error);
+
+
+console.groupCollapsed("Registered classes (" + Object.keys(widgetRegistry).length + ")");
+Object.keys(widgetRegistry).forEach(name => {
+  console.log(name, widgetRegistry[name]);
+});
+console.groupEnd();
+
+console.groupCollapsed("Registered effects (" + Object.keys(fxRegistry).length + ")");
+Object.keys(fxRegistry).forEach(name => {
+  console.log(name, fxRegistry[name]);
+});
+console.groupEnd();

@@ -37,7 +37,7 @@ flexpage.addChild(
           { props: { href: "https://ifnowcode.github.io", target: "_blank" } },
           new ImageBox({
             css: { padding: '20px', display: 'block', margin: 'auto'},
-            props: { src: "../../../domicile1/images/granite-raw-block-250x250.jpg" }
+            props: { src: "../../../domicile1/assets/images/granite-raw-block-250x250.jpg" }
           })
         ),
       ),

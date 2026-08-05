@@ -4,5 +4,12 @@ archive/
 node_modules/
 res/
 sources/
+diff/
+save/
 .htaccess
 readme.txt
+update_domicile.cmd
+examples/projects/dcmark/assets/
+examples/projects/labeltest/assets/
+examples/helloworld/SPA/assets/
+examples/helloworld/404router/assets/
