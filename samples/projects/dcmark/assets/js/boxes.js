@@ -257,18 +257,16 @@ class ContentLoader extends HTMLBox {
   }
   
   async load(source) {
-    /*
     const res = await fetch(this.base + source);
     if (!res.ok) {
       console.error("Fetch failed!", this.base + source);
       return;
     }
-    let text = await res.text();
-    */
-    const text = await safeFetch(source, { base: this.base, parse: "text"});
-    console.log("Fetch succeeded!", text);
     
+    let text = await res.text();
     let html = text;
+    console.log("Fetch succeeded!", text);
+
     if (this.isMarkdown) {
       html = marked.parse(html);
       if (this.sanitize) html = DOMPurify.sanitize(html);
@@ -293,15 +291,12 @@ class IndexLoader {
   }
 
   async loadIndex() {
-    /*
     const res = await fetch(`${this.basePath}/index.json`);
     if (!res.ok) {
       console.error("Fetch failed!", res.status);
       return this.items;
     }
     const files = await res.json();
-    */
-    const files = await safeFetch(`${this.basePath}/index.json`, { parse: "json"})
 
     for (const file of files) {
       const url = `${this.basePath}/${file}`;
@@ -339,27 +334,17 @@ class RESTLoader {
     this.data = null;
     this.loaded = false;
     this.onLoad = null;
+
     this.load();
   }
 
   async load() {
-    //try {
-      if (false) {
-        // this failed (used in Public API Browser [Pages > API Browser])
-        // I believe this is because of the same-origin flag
-        this.data = await safeFetch(this.url, { parse: "json"})
-      } else {
-        console.log("Fetch URL:", this.url);
-        const res = await fetch(this.url);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status} ${res.statusText}`);
-        }
-        this.data = await res.json();
-      }
-      
-    //} catch (err) {
-    //  if (traceerror) console.error("RESTLoader error:", err);
-    //}
+    try {
+      const res = await fetch(this.url);
+      this.data = await res.json();
+    } catch (err) {
+      if (traceerror) console.error("RESTLoader error:", err);
+    }
 
     this.loaded = true;
     if (this.onLoad) this.onLoad(this.data);
@@ -368,7 +353,6 @@ class RESTLoader {
 
 //if(registration) RESTLoader.register();
 
-/*
 class IFrameLoader1 extends Element {
   constructor(metadata = {}) {
     super('div', metadata);
@@ -384,7 +368,6 @@ class IFrameLoader1 extends Element {
   }
   
   async load(source) {
-
     const res = await fetch(this.base + source);
     if (!res.ok) {
       console.error("[iframe] Fetch failed!", res);
@@ -425,7 +408,6 @@ class IFrameLoader1 extends Element {
     }
   }
 }
-*/
 
 class IFrameLoader extends Element {
   constructor(metadata = {}) {
@@ -455,16 +437,10 @@ class IFrameLoader extends Element {
   }
 
   async load(source) {
-    /*
     const res = await fetch(this.base + source);
-    if (!res.ok) {
-      console.error("[iframe] Fetch failed!", res);
-      return;
-    }
+    if (!res.ok) return;
+
     const text = await res.text();
-    */
-    const text = await safeFetch(source, { base: this.base, parse: "text"});
-    
     const html = this.isMarkdown ? marked.parse(text) : text;
     //const beautify = html_beautify(html);
     
@@ -548,15 +524,13 @@ class SandboxedIFrameLoader extends Element {
   }
 
   async load(source) {
-    /*
     const res = await fetch(this.base + source);
     if (!res.ok) {
       console.error("[sandbox-iframe] Fetch failed", res.status);
       return;
     }
+
     const text = await res.text();
-    */
-    const text = await safeFetch(source, { base: this.base, parse: "text"});
     const html = this.isMarkdown ? marked.parse(text) : text;
     //const beautify = html_beautify(html);
     
@@ -618,16 +592,14 @@ class InjectHTMLLoader extends HTMLBox {
       this.setHTML("ERROR: InjectHTMLLoader Unsupported File Type > [" + getFileExtension(source) + "]");
       return;
     }
-    /*
     const res = await fetch(this.base + source);
     if (!res.ok) {
       console.error("Fetch failed!", this.base + source);
       return;
     }
+
     let text = await res.text();
-    */
-    const text = await safeFetch(source, { base: this.base, parse: "text"});
-    if (tracedebug) console.log("Fetch succeeded!", text);
+    if (tracedebug) console.log("Fetch succeeded!");
     
     let html = "";
     if (this.isMarkdown) {

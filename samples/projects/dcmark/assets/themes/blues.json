@@ -1,0 +1,15 @@
+{
+  // body
+  "--dc-bg": "#001",
+  "--dc-color": "#aaa",
+  // nav colors
+  "--dc-nav-bg": "#002",
+  "--dc-nav-fg": "#fff",
+  "--dc-nav-dropdown-bg1": "#0000ff",
+  "--dc-nav-dropdown-bg2": "#000011",
+  "--dc-nav-hover-bg": "rgba(91, 141, 239, 0.14)",
+  "--dc-nav-hover-color": "#ffff00"
+  /* spacing */
+  //"--dc-nav-padding": "12px",
+  //"--dc-nav-radius": 8
+}

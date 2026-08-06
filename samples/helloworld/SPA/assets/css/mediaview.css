@@ -1,0 +1,129 @@
+:root {
+  --mediaview-tile-spacing: 10px;
+  --mediaview-tile-width: 250px;
+  --mediaview-tile-height: calc(var(--mediaview-tile-width) / (16 / 9));
+  --mediaview-growth-factor: 2; /* 1.5 */
+  --mediaview-fade-opacity: 0.25;
+  --mediaview-normal-opacity: 1;
+  --mediaview-offset-left: calc(-1 * (var(--mediaview-tile-width) * (var(--mediaview-growth-factor) - 1) / 2));
+  --mediaview-offset-right: calc(var(--mediaview-tile-width) * (var(--mediaview-growth-factor) - 1));
+  --mediaview-transition-1: 1s;
+  --mediaview-transition-2: 0.5s;
+  --mediaview-transition-3: 0.3s;
+}
+
+.mediaview-container {}
+
+/* mediaview viewport */
+.mediaview {
+  margin: 0;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* mediaview row as a single-row grid with auto-columns for tiles */
+.mediaview-row {
+  display: grid;
+  grid-auto-flow: column;                 /* place items left-to-right */
+  grid-auto-columns: var(--mediaview-tile-width);
+  grid-column-gap: var(--mediaview-tile-spacing);
+  align-items: center;                    /* vertical centering of tiles */
+  padding-top: calc((var(--mediaview-tile-height) * (var(--mediaview-growth-factor) - 1)) / 2);
+  padding-bottom: calc((var(--mediaview-tile-height) * (var(--mediaview-growth-factor) - 1)) / 2);
+  padding-left: calc((var(--mediaview-tile-width) * (var(--mediaview-growth-factor) - 1)) / 2);
+  padding-right: calc((var(--mediaview-tile-width) * (var(--mediaview-growth-factor) - 1)) / 2 + var(--mediaview-tile-width) / 2 + 100);
+  transition: transform var(--mediaview-transition-2) ease;
+  will-change: transform;
+}
+
+/* Tile as a grid-area so content can be centered and sized easily */
+.mediaview-tile {
+  box-sizing: border-box;
+  width: var(--mediaview-tile-width);      /* grid column width mirrors this */
+  height: var(--mediaview-tile-height);
+  display: grid;
+  place-items: center;                    /* center media horizontally and vertically */
+  overflow: hidden;
+  /* background: #000; */ 
+  position: relative;
+  transition: transform var(--mediaview-transition-2) ease, opacity var(--mediaview-transition-2) ease, margin var(--mediaview-transition-2) ease;
+  transform-origin: center left;
+  cursor: pointer;
+}
+
+/* Ensure media conforms to the tile */
+.mediaview-tile video,
+.mediaview-tile img,
+.mediaview-tile iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  display: block;
+  box-shadow: 0 0 12px rgba(255, 77, 109, 0.6);
+}
+
+/*
+.mediaview-tile:first-child::after {
+  content: '⇨';
+  position: absolute;
+  right: 10px;
+  font-size: 1.5em;
+}
+
+.mediaview-tile:last-child::after {
+  content: '⇦';
+  position: absolute;
+  left: 10px;
+  font-size: 1.5em;
+}
+*/
+
+/* Extra breathing room after the last tile */
+.mediaview-row > .mediaview-tile:last-of-type {
+  margin-right: calc(var(--mediaview-tile-width) / 2);
+}
+
+/* Child elements inside tile should render normally */
+.mediaview-tile * {
+  display: block;
+}
+
+/* Hover interactions adapted to grid layout */
+.mediaview-row:hover {
+  transform: translate3d(var(--mediaview-offset-left), 0, 0);
+}
+
+.mediaview-row:hover .mediaview-tile {
+  opacity: var(--mediaview-fade-opacity);
+}
+
+/* Grow the hovered tile and restore opacity */
+.mediaview-row:hover .mediaview-tile:hover {
+  transform: scale(var(--mediaview-growth-factor));
+  opacity: var(--mediaview-normal-opacity);
+  z-index: 2;
+}
+
+/* Shift subsequent tiles to the right when a tile is hovered */
+.mediaview-row .mediaview-tile:hover ~ .mediaview-tile {
+  transform: translate3d(var(--mediaview-offset-right), 0, 0);
+}
+
+/* Enable smooth hardware-accelerated transforms */
+.mediaview-row,
+.mediaview-row .mediaview-tile {
+  backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+/* Responsive: shrink tile width on smaller screens */
+@media (max-width: 800px) {
+  :root { --mediaview-tile-width: 200px; }
+  .mediaview-row { grid-auto-columns: var(--mediaview-tile-width); }
+  .mediaview-tile { width: var(--mediaview-tile-width); }
+}

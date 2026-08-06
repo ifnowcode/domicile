@@ -9,7 +9,7 @@ const traceelement = false;
 const tracemenu = false;
 const tracedom = false;
 const tracerouter = true;
-const tracefx = false;
+const tracefx = true;
 const tracegame = false;
 
 const widgetRegistry = {};
@@ -172,13 +172,9 @@ function getLocalPath(base) {
 
 //const data = await loadJsonFile("/data/file.json");
 async function loadJsonFile(url) {
-  if (false) {
-    return await safeFetch(url, { parse: "json"});
-  } else {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} url: ${url}`);
-    return await res.json();
-  }
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return await response.json();
 }
 
 /*
@@ -200,11 +196,10 @@ loadAndApplyTheme("/theme.json");
   applyJSONTheme(theme);
 })();
 */
-
 async function loadJSONTheme(url) {
   let text = '';
   if (false) {
-    text = await safeFetch(url, { parse: "text"})
+    text = await safeFetch(url);
   } else {
     const res = await fetch(url);
     if (!res.ok) {
@@ -246,42 +241,9 @@ async function loadAndApplyTheme(url) {
   applyJSONTheme(theme);
 }
 
-// rebuild of safeFetch for testing as safeFetch full is breaking on URL
-async function minFetch(url, options = {}) {
-  const {
-    base = "",
-    headers = {},
-    credentials = "same-origin",
-    mode = "same-origin",
-    parse = "auto", // "auto" | "json" | "text" | "blob" | "arrayBuffer" | "response"
-    signal,
-    ...fetchOptions
-  } = options;
-  
-  //const foo = new URL(url, base); // not valid url error
-  
-  const res = await fetch(base + url);
-    if (!res.ok) {
-      //console.error("[fetch] GET failed!", this.base + source);
-      throw new Error(`HTTP ${res.status} ${res.statusText}`);
-    }
-    
-    if (parse === "response") return res;
-    if (parse === "json") return await res.json();
-    if (parse === "text") return await res.text();
-    if (parse === "blob") return await res.blob();
-    if (parse === "arrayBuffer") return await res.arrayBuffer();
-    
-    const contentType = res.headers.get("content-type") || "";
-
-    if (contentType.includes("application/json")) return await res.json();
-    if (contentType.startsWith("text/") || contentType.includes("json")) return await res.text();
-    return await res.arrayBuffer();
-}
-
 async function safeFetch(url, options = {}) {
   const {
-    base = "",
+    baseUrl = "",
     timeoutMs = 15000,
     headers = {},
     credentials = "same-origin",
@@ -290,9 +252,8 @@ async function safeFetch(url, options = {}) {
     signal,
     ...fetchOptions
   } = options;
-  
-  console.log("Fetch URL:", base + url);
-  const fullUrl = base + url; //new URL(url, base).toString(); // URL failed with bad url ironically
+
+  const fullUrl = new URL(url, baseUrl).toString();
   const controller = new AbortController();
   const timeoutId = setTimeout(
     () => controller.abort(new DOMException("Request timed out", "TimeoutError")),
@@ -319,17 +280,15 @@ async function safeFetch(url, options = {}) {
     if (!res.ok) {
       throw new Error(`HTTP ${res.status} ${res.statusText}`);
     }
-    
-    // should throw when parse not specified or doesn't match? ignore on auto? 
-    // what if i want text and get json? I have gotten arrayBuffer when wanting text
-    // auto didn't work well, what is the solution for this handoff mixup?
+
     if (parse === "response") return res;
+
+    const contentType = res.headers.get("content-type") || "";
+
     if (parse === "json") return await res.json();
     if (parse === "text") return await res.text();
     if (parse === "blob") return await res.blob();
     if (parse === "arrayBuffer") return await res.arrayBuffer();
-    
-    const contentType = res.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) return await res.json();
     if (contentType.startsWith("text/") || contentType.includes("json")) return await res.text();
@@ -339,22 +298,90 @@ async function safeFetch(url, options = {}) {
   }
 }
 
-// usage
-//const api = new SafeFetch({ base: "/api", timeoutMs: 10000 });
-//const data = await api.get("/theme.json");
 class SafeFetch {
   constructor(config = {
-    base = "",
+    baseUrl = "",
     timeoutMs = 15000,
     credentials = "same-origin",
     mode = "same-origin",
     headers = {},
   } = {}) {
     this.config = config;
+    //this.baseUrl = baseUrl;
+    //this.timeoutMs = timeoutMs;
+    //this.credentials = credentials;
+    //this.mode = mode;
+    //this.headers = headers;
   }
 
   request(url, options = {}) {
     return safeFetch(url, { ...this.config, ...options });
+  }
+
+  get(url, options = {}) {
+    return this.request(url, { ...options, method: "GET" });
+  }
+
+  post(url, body, options = {}) {
+    return this.request(url, {
+      ...options,
+      method: "POST",
+      body: typeof body === "string" ? body : JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    });
+  }
+}
+
+
+// usage
+//const api = new SafeFetch({ baseUrl: "/api", timeoutMs: 10000 });
+//const data = await api.get("/theme.json");
+class SafeFetch1 {
+  constructor({
+    baseUrl = "",
+    timeoutMs = 15000,
+    credentials = "same-origin",
+    mode = "same-origin",
+    headers = {},
+  } = {}) {
+    this.baseUrl = baseUrl;
+    this.timeoutMs = timeoutMs;
+    this.credentials = credentials;
+    this.mode = mode;
+    this.headers = headers;
+  }
+
+  async request(url, options = {}) {
+    const fullUrl = new URL(url, this.baseUrl).toString();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(new DOMException("Request timed out", "TimeoutError")), this.timeoutMs);
+
+    try {
+      const res = await fetch(fullUrl, {
+        ...options,
+        headers: {
+          ...this.headers,
+          ...(options.headers || {}),
+        },
+        credentials: options.credentials ?? this.credentials,
+        mode: options.mode ?? this.mode,
+        signal: options.signal ? AbortSignal.any([options.signal, controller.signal]) : controller.signal,
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      }
+
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) return await res.json();
+      if (contentType.startsWith("text/") || contentType.includes("json")) return await res.text();
+      return await res.arrayBuffer();
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   get(url, options = {}) {
