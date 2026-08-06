@@ -257,16 +257,18 @@ class ContentLoader extends HTMLBox {
   }
   
   async load(source) {
+    /*
     const res = await fetch(this.base + source);
     if (!res.ok) {
       console.error("Fetch failed!", this.base + source);
       return;
     }
-    
     let text = await res.text();
-    let html = text;
+    */
+    const text = await safeFetch(source, { base: this.base, parse: "text"});
     console.log("Fetch succeeded!", text);
-
+    
+    let html = text;
     if (this.isMarkdown) {
       html = marked.parse(html);
       if (this.sanitize) html = DOMPurify.sanitize(html);
@@ -334,7 +336,6 @@ class RESTLoader {
     this.data = null;
     this.loaded = false;
     this.onLoad = null;
-
     this.load();
   }
 
@@ -353,6 +354,7 @@ class RESTLoader {
 
 //if(registration) RESTLoader.register();
 
+/*
 class IFrameLoader1 extends Element {
   constructor(metadata = {}) {
     super('div', metadata);
@@ -368,6 +370,7 @@ class IFrameLoader1 extends Element {
   }
   
   async load(source) {
+
     const res = await fetch(this.base + source);
     if (!res.ok) {
       console.error("[iframe] Fetch failed!", res);
@@ -408,6 +411,7 @@ class IFrameLoader1 extends Element {
     }
   }
 }
+*/
 
 class IFrameLoader extends Element {
   constructor(metadata = {}) {
@@ -437,10 +441,16 @@ class IFrameLoader extends Element {
   }
 
   async load(source) {
+    /*
     const res = await fetch(this.base + source);
-    if (!res.ok) return;
-
+    if (!res.ok) {
+      console.error("[iframe] Fetch failed!", res);
+      return;
+    }
     const text = await res.text();
+    */
+    const text = await safeFetch(source, { base: this.base, parse: "text"});
+    
     const html = this.isMarkdown ? marked.parse(text) : text;
     //const beautify = html_beautify(html);
     
@@ -524,13 +534,15 @@ class SandboxedIFrameLoader extends Element {
   }
 
   async load(source) {
+    /*
     const res = await fetch(this.base + source);
     if (!res.ok) {
       console.error("[sandbox-iframe] Fetch failed", res.status);
       return;
     }
-
     const text = await res.text();
+    */
+    const text = await safeFetch(source, { base: this.base, parse: "text"});
     const html = this.isMarkdown ? marked.parse(text) : text;
     //const beautify = html_beautify(html);
     
@@ -592,14 +604,16 @@ class InjectHTMLLoader extends HTMLBox {
       this.setHTML("ERROR: InjectHTMLLoader Unsupported File Type > [" + getFileExtension(source) + "]");
       return;
     }
+    /*
     const res = await fetch(this.base + source);
     if (!res.ok) {
       console.error("Fetch failed!", this.base + source);
       return;
     }
-
     let text = await res.text();
-    if (tracedebug) console.log("Fetch succeeded!");
+    */
+    const text = await safeFetch(source, { base: this.base, parse: "text"});
+    if (tracedebug) console.log("Fetch succeeded!", text);
     
     let html = "";
     if (this.isMarkdown) {

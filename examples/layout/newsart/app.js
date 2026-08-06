@@ -67,7 +67,8 @@ const color = getRandomColor();
 
 new NavBarHLink({
   base: base,
-  logoText: `<span style="color:${color};"><b>DOM</b></span>icile Tribune`,
+  logoText: "DOMicile",
+  logoHTML: `<span style="color:${color};"><b>DOM</b></span>icile Tribune`,
   logoImage: null, // "/assets/logo.png" or null if no image
   links: [
     { label: "Home", href: "/" },

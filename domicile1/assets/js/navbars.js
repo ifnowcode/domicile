@@ -298,6 +298,7 @@ class NavBarLink extends Element {
     props: {},
     base: "",
     logoText: "",
+    logoHTML: null,
     logoImage: null,
     popoff: true,
     links: []
@@ -419,6 +420,7 @@ class NavBarLink extends Element {
       base: metadata.base ?? "",
       popoff: metadata.popoff ?? true,
       logoText: metadata.logoText ?? this.defaults.logoText,
+      logoHTML: metadata.logoHTML ?? this.defaults.logoHTML,
       logoImage: metadata.logoImage ?? this.defaults.logoImage,
       links: metadata.links ?? this.defaults.links,
     };

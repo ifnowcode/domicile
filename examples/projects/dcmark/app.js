@@ -1,5 +1,5 @@
 // SPA
-console.log("Starting Marky");
+console.log("Starting DcMark");
 
 // starting template
 class UI extends Element {

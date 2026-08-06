@@ -1,4 +1,4 @@
-// server.js
+  // server.js
 //
 // Express API using sqlite3 (no better-sqlite3, no sqlite wrapper)
 
@@ -68,5 +68,5 @@ app.delete("/api/contacts/:id", (req, res) => {
 
 // Start server
 app.listen(3000, () => {
-  console.log("API running at http://localhost:3000");
+  console.log("SqliteDB API running at http://localhost:3000");
 });

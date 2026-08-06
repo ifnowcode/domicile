@@ -241,9 +241,42 @@ async function loadAndApplyTheme(url) {
   applyJSONTheme(theme);
 }
 
+// rebuild of safeFetch for testing as safeFetch full is breaking on URL
+async function minFetch(url, options = {}) {
+  const {
+    base = "",
+    headers = {},
+    credentials = "same-origin",
+    mode = "same-origin",
+    parse = "auto", // "auto" | "json" | "text" | "blob" | "arrayBuffer" | "response"
+    signal,
+    ...fetchOptions
+  } = options;
+  
+  //const foo = new URL(url, base); // not valid url error
+  
+  const res = await fetch(base + url);
+    if (!res.ok) {
+      //console.error("[fetch] GET failed!", this.base + source);
+      throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    }
+    
+    if (parse === "response") return res;
+    if (parse === "json") return await res.json();
+    if (parse === "text") return await res.text();
+    if (parse === "blob") return await res.blob();
+    if (parse === "arrayBuffer") return await res.arrayBuffer();
+    
+    const contentType = res.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) return await res.json();
+    if (contentType.startsWith("text/") || contentType.includes("json")) return await res.text();
+    return await res.arrayBuffer();
+}
+
 async function safeFetch(url, options = {}) {
   const {
-    baseUrl = "",
+    base = "",
     timeoutMs = 15000,
     headers = {},
     credentials = "same-origin",
@@ -252,8 +285,9 @@ async function safeFetch(url, options = {}) {
     signal,
     ...fetchOptions
   } = options;
-
-  const fullUrl = new URL(url, baseUrl).toString();
+  
+  console.log("Fetch URL:", url);
+  const fullUrl = base + url; //new URL(url, base).toString(); // URL failed with bad url ironically
   const controller = new AbortController();
   const timeoutId = setTimeout(
     () => controller.abort(new DOMException("Request timed out", "TimeoutError")),
@@ -280,15 +314,17 @@ async function safeFetch(url, options = {}) {
     if (!res.ok) {
       throw new Error(`HTTP ${res.status} ${res.statusText}`);
     }
-
+    
+    // should throw when parse not specified or doesn't match? ignore on auto? 
+    // what if i want text and get json? I have gotten arrayBuffer when wanting text
+    // auto didn't work well, what is the solution for this handoff mixup?
     if (parse === "response") return res;
-
-    const contentType = res.headers.get("content-type") || "";
-
     if (parse === "json") return await res.json();
     if (parse === "text") return await res.text();
     if (parse === "blob") return await res.blob();
     if (parse === "arrayBuffer") return await res.arrayBuffer();
+    
+    const contentType = res.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) return await res.json();
     if (contentType.startsWith("text/") || contentType.includes("json")) return await res.text();
@@ -298,20 +334,19 @@ async function safeFetch(url, options = {}) {
   }
 }
 
+// usage
+//const api = new SafeFetch({ base: "/api", timeoutMs: 10000 });
+//const data = await api.get("/theme.json");
+
 class SafeFetch {
   constructor(config = {
-    baseUrl = "",
+    base = "",
     timeoutMs = 15000,
     credentials = "same-origin",
     mode = "same-origin",
     headers = {},
   } = {}) {
     this.config = config;
-    //this.baseUrl = baseUrl;
-    //this.timeoutMs = timeoutMs;
-    //this.credentials = credentials;
-    //this.mode = mode;
-    //this.headers = headers;
   }
 
   request(url, options = {}) {
@@ -335,27 +370,25 @@ class SafeFetch {
   }
 }
 
-
-// usage
-//const api = new SafeFetch({ baseUrl: "/api", timeoutMs: 10000 });
-//const data = await api.get("/theme.json");
 class SafeFetch1 {
   constructor({
-    baseUrl = "",
+    base = "",
     timeoutMs = 15000,
     credentials = "same-origin",
     mode = "same-origin",
     headers = {},
   } = {}) {
-    this.baseUrl = baseUrl;
+    this.base = base;
     this.timeoutMs = timeoutMs;
     this.credentials = credentials;
     this.mode = mode;
     this.headers = headers;
   }
 
+  // BUG:? auto is not working correctly and there is no way to specify AFAIK otherwise this is functional
+  // deprecate: SafeFetch wraps safeFetch as I need this too.
   async request(url, options = {}) {
-    const fullUrl = new URL(url, this.baseUrl).toString();
+    const fullUrl = this.base + url; //new URL(url, this.base).toString();
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(new DOMException("Request timed out", "TimeoutError")), this.timeoutMs);
 
